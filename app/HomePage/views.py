@@ -1,5 +1,12 @@
 from . import homepage 
+from flask.views import MethodView 
+from flask import current_app
 
-@homepage.route('/')
-def index():
-    return "Hello flask"
+class HomePage(MethodView):
+    def get(self):
+        return "Hello Flask!!!!"
+
+
+class User(MethodView):
+    def get(self,username):
+        return "Hello {username}".format(username=username)
