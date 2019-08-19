@@ -1,7 +1,9 @@
 from flask.views import MethodView 
-from flask import request,jsonify
+from flask import request,jsonify,g
 from .models import User 
-from app import db 
+from app import db
+from .token import tokenAuth
+
 
 USERNAME_OR_PASSWORD_IS_NONE_ERROR = {"id":401,"message":"please specify the username/password"}
 NO_USER_ERROR = {"id":402, "message":"No such user"}
@@ -22,6 +24,8 @@ class RegisterView(MethodView):
             return jsonify(USER_EXSIST)
         
         else:
+            user = User(username=username)
+            user.password = password
             db.session.add(user)
             db.session.commit()
             return jsonify(REGISTER_SUCCESS)
@@ -29,6 +33,8 @@ class RegisterView(MethodView):
 
 
 class LoginView(MethodView):
+    def get(self):
+        return "login page"
     
     def post(self):
         args = request.get_json()
@@ -43,14 +49,17 @@ class LoginView(MethodView):
         
         if user.verify_password(password):
             token = user.generate_auth_token()
-            LOGIN_SUCCESS.update({"token":token})
+            # db.session.commit()
+            LOGIN_SUCCESS.update({"token":token.decode('utf-8')})
             return jsonify(LOGIN_SUCCESS)
         else:
             return jsonify(PASSWORD_ERROR)
             
 
         
-            
 class UserProfile(MethodView):
-    def get()
+    decorators = [tokenAuth.login_required]
+    def get(self):
+        return jsonify({"user":g.current_user.username})
+
 

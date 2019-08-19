@@ -13,6 +13,7 @@ pymysql = "*"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
 flask-migrate = "*"
+flask-httpauth = "*"
 
 [requires]
 python_version = "3.7"

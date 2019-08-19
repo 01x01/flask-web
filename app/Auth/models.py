@@ -1,7 +1,8 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer,SignatureExpired,BadSignature
 from flask import current_app
+
 
 
 class User(db.Model):
@@ -10,6 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(20))
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    token = db.Column(db.String(500))
 
     @property 
     def password(self):
@@ -20,24 +22,27 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self,password):
-        return self.check_password_hash(self.password_hash,password)
+        return check_password_hash(self.password_hash,password)
 
     def generate_auth_token(self,expiration=600):
         s = Serializer(current_app.config['SECRET_KEY'], expires_in = expiration)
-        return s.dumps({'id' : self.id})
+        token = s.dumps({'id' : self.id})
 
-    @staticmethod
-    def verify_auth_token(token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            return None
-        except BadSignature:
-            return None
+        # self.token  = token
+        return token
+
+    # @staticmethod
+    # def verify_auth_token(token):
+    #     s = Serializer(current_app.config['SECRET_KEY'])
+    #     try:
+    #         data = s.loads(token)
+    #     except SignatureExpired:
+    #         return None
+    #     except BadSignature:
+    #         return None
         
-        user = User.query.get(data['id'])
-        return user
+    #     user = User.query.get(data['id'])
+    #     return user
 
     def __repr__(self):
         return "<User:{}>".format(self.username)

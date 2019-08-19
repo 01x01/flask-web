@@ -4,7 +4,7 @@ from flask import current_app
 
 class HomePage(MethodView):
     def get(self):
-        return "Hello Flask!!!!"
+        return current_app.config['SECRET_KEY']
 
 
 class User(MethodView):

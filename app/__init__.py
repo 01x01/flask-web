@@ -1,4 +1,4 @@
-from flask import Flask 
+from flask import Flask,g
 from config import config 
 from flask_sqlalchemy import SQLAlchemy 
 
@@ -21,8 +21,10 @@ def create_app(config_name):
     from app.HomePage import homepage 
     app.register_blueprint(homepage)
 
-    from app.Authentication import auth 
+    from app.Auth import auth 
     app.register_blueprint(auth)
+
+
     
     return app
 
